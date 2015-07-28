@@ -43,29 +43,17 @@ local folder_neednot_merge=$TMP_FLODER/folder_neednot_merge.log
 while read file ; do
 for token in $file
 do
-        #echo token = $token
-        #echo "\$1=`echo $token | gawk -F'=' '{print $1}'`" 
-        
-#set -x
-#        path=`echo $token | gawk -F'=' '{ if ($1 == "path"){print $2} else {print "alex"}}'`
         [ `echo $token | grep path` ] && path=`echo $token | awk -F'=' '{print $2}' | sed 's/\"//g'`
         [ `echo $token | grep name` ] && name=`echo $token | awk -F'=' '{print $2}' | sed 's/\"//g'`
         [ `echo $token | grep revision` ] && revision=`echo $token | awk -F'=' '{print $2}' | sed 's/\"//g'`
-#        name=`echo $token | gawk -F'=' '{ if ($1 == "name"){print $2} else {print $name}}'`
-#        revision=`echo $token | gawk -F'=' '{ if ($1 == "revision"){print $2} else {print $revision}}'`
-        #echo revision = $revision
-#set +x
 done
-# folder does not have specific revision, then it just use base reversion ex. refs/tags/android-5.0.2_r3
 [ "$name" == "" ] || {
-#    echo alex1: $path $name $revision
     if [ -z $revision ]; then 
         echo $path >> $folder_neednot_merge
     else
         merge $path $name $revision
     fi
 }
-echo "---------"
 path=
 name=
 revision=
