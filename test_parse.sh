@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# TODO: Need to filter out all comment which started with "<!--"
 TMP_FLODER=`mktemp -d --tmpdir=$PWD --suffix=_merge_phablet_$(date +%s)`
 usage(){
 cat<< EOF
@@ -12,16 +13,16 @@ merge(){
  local name=$2
  local revision=$3
  local PHABLET_ADDR="ssh://code-review.phablet.ubuntu.com:29418/"
- local remote=ondra-a5
+ local remote=ondra-a5-2
  local log_file=$TMP_FLODER/phablet_merge.log
  local not_exist_folder=$TMP_FLODER/not_exist_folder.log
 
- revision=`echo "$revision" | sed 's/refs\/heads/remote/'`
-cat<< EOF
- $path $name $revision
+ revision=$remote`echo "$revision" | sed 's/refs\/heads//'`
+#cat<< EOF
+# $path $name $revision
  if [ -d $path ]; then
      pushd $path
-     git add $remote $PHABLET_ADDR/$name
+     git remote add $remote $PHABLET_ADDR/$name
      git fetch $remote
      git merge $revision
      echo "$path $revision" >> $log_file 
@@ -29,7 +30,7 @@ cat<< EOF
  else
     echo "$path name $revision" >> $not_exist_folder.log
  fi
-EOF
+#EOF
 echo
 }
 
