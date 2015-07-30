@@ -13,7 +13,7 @@ merge(){
  local name=$2
  local revision=$3
  local PHABLET_ADDR="ssh://code-review.phablet.ubuntu.com:29418/"
- local remote=ondra-a5-2
+ local remote=ondra-a5-3
  local log_file=$TMP_FLODER/phablet_merge.log
  local not_exist_folder=$TMP_FLODER/not_exist_folder.log
 
@@ -24,7 +24,7 @@ merge(){
      pushd $path
      git remote add $remote $PHABLET_ADDR/$name
      git fetch $remote
-     git merge $revision
+     git merge --no-edit $revision
      echo "$path $revision" >> $log_file 
      popd
  else
@@ -42,6 +42,7 @@ local folder_neednot_merge=$TMP_FLODER/folder_neednot_merge.log
 
 
 while read file ; do
+[ "0" != "$(expr "$file" : "^<!")" ] && continue
 for token in $file
 do
         [ `echo $token | grep path` ] && path=`echo $token | awk -F'=' '{print $2}' | sed 's/\"//g'`
