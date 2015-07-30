@@ -1,10 +1,11 @@
 #!/bin/bash
 
-# TODO: Need to filter out all comment which started with "<!--"
+# 
 TMP_FLODER=`mktemp -d --tmpdir=$PWD --suffix=_merge_phablet_$(date +%s)`
 usage(){
 cat<< EOF
     This is usage()
+    $(basename $0) path-to-phablet-android-5/.repo/manifest.xml 2>&1 | tee ./merge.log
 EOF
 }
 
