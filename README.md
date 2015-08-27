@@ -1,5 +1,6 @@
 # arale-repack-factory-images
 A tool to repack flashable factory images from released tarballs.
+ex. ./mkflashable.sh --autobuild --channel ubuntu-touch/rc-proposed/meizu.en
 
  *NOTICE* :
 Flash your device by flash tool might brick your device.
