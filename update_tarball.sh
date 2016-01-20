@@ -1,5 +1,18 @@
 #!/bin/bash
-set -x
+
+usage() {
+cat<< EOF
+usage : $0 tarball
+
+Update tarball in recovery mode.
+EOF
+}
+
+if [ $# == 0 ];then
+    usage
+    exit 1
+fi
+
 wait_recovery(){
     while [ 1 ];
     do
@@ -9,6 +22,7 @@ wait_recovery(){
         break
     done
 }
+echo "Updating $1 ...."
 echo please update tarball in recovery mode.
 wait_recovery
 [ -e $1 ] || { echo "$1 not exist"; exit; }
@@ -24,7 +38,7 @@ adb shell mkdir -p /etc/system-image
 # adb shell touch /etc/system-image/skip-gpg-verification
 # reboot to recovery and wait upgrader done.
 echo "now reboot to recovery..."
-echo "If your device is Turbo, please reboot to recovery manually by power+up"
+echo "If your device is Turbo, please reboot to recovery manually by power+up [LP1534573]"
 adb reboot recovery
 wait_recovery
 while [ 1 ]; do
@@ -33,6 +47,6 @@ echo wait upgrader...
 sleep 3
 done
 echo "updated $1, reboot device"
-echo "If your device is Turbo, please reboot manually"
+echo "If your device is Turbo, please reboot manually[LP1534573]"
 sleep 2
 adb reboot 
