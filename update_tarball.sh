@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 wait_recovery(){
     while [ 1 ];
     do
@@ -15,7 +16,7 @@ echo pushing $1
 adb push $1 /cache/recovery/
 adb shell rm -f /cache/recovery/ubuntu_command
 adb shell "echo mount system >> /cache/recovery/ubuntu_command"
-adb shell "echo update $1 >> /cache/recovery/ubuntu_command"
+adb shell "echo update $(basename $1) >> /cache/recovery/ubuntu_command"
 adb shell "echo umount system >> /cache/recovery/ubuntu_command"
 # skip signature checking:
 adb shell mkdir -p /etc/system-image
