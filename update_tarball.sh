@@ -49,4 +49,4 @@ done
 echo "updated $1, reboot device"
 echo "If your device is Turbo, please reboot manually[LP1534573]"
 sleep 2
-adb reboot 
+# adb reboot 
