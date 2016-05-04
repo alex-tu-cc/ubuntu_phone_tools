@@ -14,6 +14,7 @@ VERSION_TARBALL=
 CUSTOM_TARBALL=
 DEVICE_TARBALL=
 CHANNEL_CONF=
+REVISION=
 OUT_BASE=out/target/product/$DEVICE
 IMG_OUT=$OUT_BASE/flash-parts-full
 system_size=2147483648
@@ -39,7 +40,7 @@ mkimage() {
     fi
 
     case "$name" in
-    "system")
+    "ubuntu")
         $MAKE_EXT4FS -s -l $system_size -L rootfs -u / $IMG_OUT/$name.img $img_folder -U $contents
     ;;
     "cache")
@@ -98,6 +99,7 @@ Dependency:
 
 Options:
     -h                  Show this message
+    --revision          Specify the build version on the channel of OTA server.
     --device            Assign which device your factory used for, use turbo for turbo. Currently only turbo is supported.
     --ubuntu-tarball    Assign which ubuntu tarball to be used
     --custom-tarball    Assign which custom tarball to be used.
@@ -121,6 +123,8 @@ ex. Download the latest tarballs from server then repack factory images from the
 
      # Then get the factory images in out/target/product/turbo/flash-parts-full
      # or  "turbo-flash-\${content-of-device-buid}.tar.gz" and "turbo-flash-\${content-of-device-buid}.tar.gz.md5sum"
+ex. Download version 1 of rc channel and make factory images.
+    $ mkflashable.sh --revision 1 --autobuild --channel ubuntu-touch/rc/meizu.en
 
 
 EOF
@@ -130,8 +134,8 @@ autobuild() {
     local TARBALL_PATH=$UDF_DOWNLOAD_CACHE/pool
     local VERSION_PATH=$UDF_DOWNLOAD_CACHE/$CHANNEL
     local DOWNLOAD_LOG=`$MKTEMP --suffix=.download`
-    ubuntu-device-flash --download-only touch --device $DEVICE_FOR_UDF --channel $CHANNEL
-    ubuntu-device-flash query --show-image --device $DEVICE_FOR_UDF --channel $CHANNEL > $DOWNLOAD_LOG
+    ubuntu-device-flash $REVISION_COMMAND --download-only touch --device $DEVICE_FOR_UDF --channel $CHANNEL
+    ubuntu-device-flash $REVISION_COMMAND query --show-image --device $DEVICE_FOR_UDF --channel $CHANNEL > $DOWNLOAD_LOG
     cat $DOWNLOAD_LOG
     UBUNTU_TARBALL=$TARBALL_PATH/`cat $DOWNLOAD_LOG | grep -o -e "ubuntu-.*xz" | grep -v "/"`
     DEVICE_TARBALL=$TARBALL_PATH/`cat $DOWNLOAD_LOG | grep -o -e "device.*xz"`
@@ -153,12 +157,19 @@ fi
 for parameter in $@
 do
     [ "$SET_CHANNEL" == "1" ] && {
+       REVISION_COMMAND="--revision=$REVISION"
+    }
+
+    [ "$SET_CHANNEL" == "1" ] && {
         CHANNEL=$parameter
         echo "CHANNEL=$CHANNEL"
         break
     }
+
     if [ $parameter == "--channel" ];then
         SET_CHANNEL=1
+    elif [ $parameter == "--revision" ];then
+       REVISION=1
     fi
 done
 # Check autobuild parameter first, because of the tarball path can be replaced by user define.
@@ -253,8 +264,10 @@ else
     exit 1
 fi
 
-rm -f $IMG_OUT/system.img
-mkimage "system" fill_system
+echo ====================================================
+
+rm -f $IMG_OUT/ubuntu.img
+mkimage "ubuntu" fill_system
 
 if [ -e "$OUT_BASE/userdata.img" ]; then
     cp $OUT_BASE/userdata.img $IMG_OUT/
