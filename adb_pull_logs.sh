@@ -36,7 +36,13 @@ pushd $logs
 # get logcat
 adb shell '/bin/echo -e "#!/bin/sh\necho 1111" >/tmp/askpass'
 adb shell "chmod +x /tmp/askpass"
-[ CLEAN == "true" ] && adb shell "SUDO_ASKPASS=/tmp/askpass sudo -A /system/bin/logcat -c"
+[ CLEAN == "true" ] && {
+    adb shell "SUDO_ASKPASS=/tmp/askpass sudo -A /system/bin/logcat -c"
+    adb shell "SUDO_ASKPASS=/tmp/askpass sudo -A mount -o remount,rw /"
+    adb shell "SUDO_ASKPASS=/tmp/askpass sudo -A rm /var/log/syslog"
+    adb shell "SUDO_ASKPASS=/tmp/askpass sudo -A rm /var/log/upstart/*"
+    adb shell "SUDO_ASKPASS=/tmp/askpass sudo -A rm /home/phablet/.cache/upstart/*"
+}
 adb shell "SUDO_ASKPASS=/tmp/askpass sudo -A /system/bin/logcat" > logcat.log &
 PID=$! 
 echo "getting logcat into logcat.log ...."
@@ -44,5 +50,9 @@ echo "press anykey to stop logcat and get logs under /var/log and ~/.cache/upsta
 read
 adb pull /var/log
 adb pull /home/phablet/.cache/upstart
+mkdir -p /var/crash
+pushd /var/crash
+adb pull /var/crash
+popd
 kill $PID
 echo "All logs are in $logs"
